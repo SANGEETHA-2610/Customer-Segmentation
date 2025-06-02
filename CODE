@@ -1,0 +1,88 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from google.colab import files
+
+# Upload CSV file
+uploaded = files.upload()
+
+# Load the dataset
+df = pd.read_csv(next(iter(uploaded)))
+print("File Loaded Successfully!")
+
+# --- Data Preprocessing ---
+
+# 1. Handle Missing Values
+# a. Gender column has 'NA', we will map 'NA' to a placeholder (e.g., 'M' or 'F'), or fill with the mode
+df['Gender'] = df['Gender'].replace('NA', df['Gender'].mode()[0])
+
+# 2. Drop 'Cust_ID' as it is just an identifier and won't be used in clustering
+df = df.drop(columns=['Cust_ID'])
+
+# 3. Handle missing values in the rest of the dataset (Fill NaNs with the mean of each column)
+numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
+df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
+
+# --- Check for any remaining NaN values ---
+print("Checking for any NaN values after filling missing data:")
+print(df.isnull().sum())
+
+# 4. Encode 'Gender' as numeric (M -> 0, F -> 1)
+df['Gender'] = df['Gender'].map({'M': 0, 'F': 1})
+
+# --- Scaling the Data ---
+scaler = StandardScaler()
+
+# Ensure no NaN values exist before scaling
+df_cleaned = df.dropna()
+
+# Now scale the cleaned data
+df_scaled = scaler.fit_transform(df_cleaned)
+
+# --- Apply KMeans Clustering ---
+kmeans = KMeans(n_clusters=3, n_init=10, random_state=42)
+df_cleaned['Cluster'] = kmeans.fit_predict(df_scaled)
+
+# --- Visualizations ---
+
+# 1. Cluster Count Plot
+plt.figure(figsize=(6, 4))
+sns.countplot(x='Cluster', data=df_cleaned, palette='viridis')
+plt.title('Number of Customers in Each Cluster')
+plt.xlabel('Cluster')
+plt.ylabel('Count')
+plt.show()
+
+# 2. Orders Distribution by Cluster (Boxplot)
+plt.figure(figsize=(6, 4))
+sns.boxplot(x='Cluster', y='Orders', data=df_cleaned, palette='Set2')
+plt.title('Orders Distribution by Cluster')
+plt.xlabel('Cluster')
+plt.ylabel('Orders')
+plt.show()
+
+# 3. Cluster-wise Product Preferences (Barplot)
+plt.figure(figsize=(6, 4))
+sns.barplot(x='Cluster', y='Jordan', data=df_cleaned, palette='coolwarm')
+plt.title('Jordan Purchases by Cluster')
+plt.xlabel('Cluster')
+plt.ylabel('Average Jordan Purchases')
+plt.show()
+
+# 4. Violin plot to compare distribution of products (e.g., Samsung) by Cluster
+plt.figure(figsize=(6, 4))
+sns.violinplot(x='Cluster', y='Samsung', data=df_cleaned, palette='Set2')
+plt.title('Samsung Purchases Distribution by Cluster')
+plt.xlabel('Cluster')
+plt.ylabel('Samsung Purchases')
+plt.show()
+
+# 5. Distribution of Orders for each Cluster (Histogram)
+plt.figure(figsize=(6, 4))
+sns.histplot(data=df_cleaned, x='Orders', hue='Cluster', multiple='stack', palette='Set2')
+plt.title('Distribution of Orders by Cluster')
+plt.xlabel('Orders')
+plt.ylabel('Frequency')
+plt.show()
