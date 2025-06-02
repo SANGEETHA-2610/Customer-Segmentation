@@ -1,5 +1,5 @@
 Customer Segmentation
-This project was completed during my Data Science internship at Infotact Solutions. It focuses on identifying distinct customer groups based on purchasing behavior using unsupervised machine learning techniques. The insights gained from this segmentation can help businesses tailor their marketing strategies and improve customer engagement.
+This project was completed during my " Data Science internship at Infotact Solutions. " It focuses on identifying distinct customer groups based on purchasing behavior using unsupervised machine learning techniques. The insights gained from this segmentation can help businesses tailor their marketing strategies and improve customer engagement.
 
 📌 Project Objective
 To apply clustering algorithms on customer data to segment them into distinct groups based on their behavior, preferences, and demographics.
